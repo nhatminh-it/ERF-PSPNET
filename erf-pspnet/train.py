@@ -292,7 +292,7 @@ def run():
                     eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)
                     logging.info('Loss : %s', loss)
                     logging.info('Save model after ', i/num_batches_per_epoch)
-                    saver.save(sess,  os.path.join(logdir,log_name), global_step = final)
+                    saver.save(sess,  os.path.join(logdir,log_name), global_step = i-1)
 
                     logging.info('Epoch %s/%s', i/num_batches_per_epoch + 1, num_epochs)
                     learning_rate_value = sess.run([lr])
