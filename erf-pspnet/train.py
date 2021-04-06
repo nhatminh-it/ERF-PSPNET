@@ -288,9 +288,16 @@ def run():
             final = num_steps_per_epoch * num_epochs
             for i in range(step,final,1):
                 if i % num_batches_per_epoch == 0:
+                    #eval after 1 epoch
+                    eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)
+                    logging.info('Loss : %s', loss)
+                    logging.info('Save model after ', i/num_batches_per_epoch)
+                    saver.save(sess,  os.path.join(logdir,log_name), global_step = final)
+
                     logging.info('Epoch %s/%s', i/num_batches_per_epoch + 1, num_epochs)
                     learning_rate_value = sess.run([lr])
                     logging.info('Current Learning Rate: %s', learning_rate_value)
+                    
                     if i is not step:
                         saver.save(sess, os.path.join(logdir,log_name),global_step=i)					
                         mPrecision,mRecall_rate,mIoU=eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)                       				
@@ -299,11 +306,7 @@ def run():
                     summary_writer.add_summary(summaries,global_step=i+1)
                 else:
                     loss = train_step(sess, train_op, global_step)
-                #eval after 1 epoch
-                eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)
-                logging.info('Loss : %s', loss)
-                logging.info('Save model')
-                saver.save(sess,  os.path.join(logdir,log_name), global_step = final)
+
                 
             summary_writer.close()					
             eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)
