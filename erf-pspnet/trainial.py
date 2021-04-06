@@ -1,4 +1,4 @@
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 from tensorflow.python.platform import tf_logging as logging
 import os
 import time
