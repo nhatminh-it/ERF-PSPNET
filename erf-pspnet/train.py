@@ -299,6 +299,12 @@ def run():
                     summary_writer.add_summary(summaries,global_step=i+1)
                 else:
                     loss = train_step(sess, train_op, global_step)
+                #eval after 1 epoch
+                eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)
+                logging.info('Loss : %s', loss)
+                logging.info('Save model')
+                saver.save(sess,  os.path.join(logdir,log_name), global_step = final)
+                
             summary_writer.close()					
             eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)
             logging.info('Final Loss: %s', loss)
