@@ -13,7 +13,7 @@ import math
 flags = tf.app.flags
 
 #Directory arguments
-flags.DEFINE_string('dataset_dir', './dataset', 'The dataset directory to find the train, validation and test images.')
+flags.DEFINE_string('dataset_dir', '/content/Cityspaces', 'The dataset directory to find the train, validation and test images.')
 flags.DEFINE_string('logdir', './log/camvid', 'The log directory to save your checkpoint and event files.')
 #Training arguments
 flags.DEFINE_integer('num_classes', 19, 'The number of classes to predict.')
@@ -54,10 +54,11 @@ logdir = FLAGS.logdir
 
 #===============PREPARATION FOR TRAINING==================
 #Get the images into a list
-image_files = sorted([os.path.join(dataset_dir, 'train', file) for file in os.listdir(dataset_dir + "/train") if file.endswith('.png')])
-annotation_files = sorted([os.path.join(dataset_dir, "trainannot", file) for file in os.listdir(dataset_dir + "/trainannot") if file.endswith('.png')])
-image_val_files = sorted([os.path.join(dataset_dir, 'val', file) for file in os.listdir(dataset_dir + "/val") if file.endswith('.png')])
-annotation_val_files = sorted([os.path.join(dataset_dir, "valannot", file) for file in os.listdir(dataset_dir + "/valannot") if file.endswith('.png')])
+import glob 
+image_files = sorted([os.path.join(dataset_dir, 'images/train', file) for file in glob.glob('/content/Cityspaces/images/train/' + "**/*.png") if file.endswith('.png')])
+annotation_files = sorted([os.path.join(dataset_dir, "gtFine/train", file) for file in glob.glob('/content/Cityspaces/gtFine/train/' + "**/*.png") if file.endswith('labelIds.png')])
+image_val_files = sorted([os.path.join(dataset_dir, 'images/val', file) for file in glob.glob('/content/Cityspaces/images/val/' + "**/*.png") if file.endswith('.png')])
+annotation_val_files = sorted([os.path.join(dataset_dir, "gtFine/val", file) for file in glob.glob('/content/Cityspaces/gtFine/val/' + "**/*.png") if file.endswith('labelIds.png')])
 #保存到excel
 csvname=logdir[6:]+'.csv'
 with  open(csvname,'a', newline='') as out:
