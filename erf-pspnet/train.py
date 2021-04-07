@@ -287,7 +287,7 @@ def run():
             summary_writer = tf.summary.FileWriter(logdir, sess.graph)
             final = num_steps_per_epoch * num_epochs
             for i in range(step,final,1):
-                if i % num_batches_per_epoch == 0:
+                if i % num_batches_per_epoch == 0 and i!=0:
                     #eval after 1 epoch
                     eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)
                     logging.info('Loss : %s', loss)
