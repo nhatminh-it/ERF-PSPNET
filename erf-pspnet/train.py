@@ -17,11 +17,11 @@ flags.DEFINE_string('dataset_dir', '/content/Cityspaces', 'The dataset directory
 flags.DEFINE_string('logdir', './log/camvid', 'The log directory to save your checkpoint and event files.')
 #Training arguments
 flags.DEFINE_integer('num_classes', 19, 'The number of classes to predict.')
-flags.DEFINE_integer('batch_size', 8, 'The batch_size for training.')
+flags.DEFINE_integer('batch_size', 4, 'The batch_size for training.')
 flags.DEFINE_integer('eval_batch_size', 24, 'The batch size used for validation.')
 flags.DEFINE_integer('image_height',360, "The input height of the images.")
 flags.DEFINE_integer('image_width', 720, "The input width of the images.")
-flags.DEFINE_integer('num_epochs', 300, "The number of epochs to train your model.")
+flags.DEFINE_integer('num_epochs', 30, "The number of epochs to train your model.")
 flags.DEFINE_integer('num_epochs_before_decay', 100, 'The number of epochs before decaying your learning rate.')
 flags.DEFINE_float('weight_decay', 2e-4, "The weight decay for ENet convolution layers.")
 flags.DEFINE_float('learning_rate_decay_factor', 1e-1, 'The learning rate decay factor.')
@@ -287,12 +287,17 @@ def run():
             summary_writer = tf.summary.FileWriter(logdir, sess.graph)
             final = num_steps_per_epoch * num_epochs
             for i in range(step,final,1):
-                if i % num_batches_per_epoch == 0 and i!=0:
+                if i == 0:
+                    logging.info('Epoch %s/%s', i/num_batches_per_epoch + 1, num_epochs)
+                    learning_rate_value = sess.run([lr])
+                    logging.info('Current Learning Rate: %s', learning_rate_value)
+                elif i % num_batches_per_epoch == 0:
                     #eval after 1 epoch
                     eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)
                     logging.info('Loss : %s', loss)
-                    logging.info('Save model after ', i/num_batches_per_epoch)
-                    saver.save(sess,  os.path.join(logdir,log_name), global_step = i-1)
+                    #logging.info('Save model after ', i/num_batches_per_epoch)
+                    print('Save model after ', i//num_batches_per_epoch)
+                    saver.save(sess,  os.path.join(logdir,log_name), i//num_batches_per_epoch)
 
                     logging.info('Epoch %s/%s', i/num_batches_per_epoch + 1, num_epochs)
                     learning_rate_value = sess.run([lr])
