@@ -46,7 +46,7 @@ def factorized_res_module(x, is_training, dropout=0.3, dilation=[1,1], l2=None, 
     return y
 
 def Encoder(x, is_training,l2=None,reuse=None,momentum=0.9):
-    #x = tf.div(x, 255., name="rescaled_inputs")    
+    x = tf.div(x, 255., name="rescaled_inputs")    
     net=downsample(x, 16, is_training=is_training,name="d1",l2=l2,momentum=momentum,reuse=reuse)
     net=downsample(net, 64, is_training=is_training,name="d2",l2=l2,momentum=momentum,reuse=reuse)
     net = factorized_res_module(net, is_training=is_training, dropout=0.03, dilation=[1, 1], l2=l2,name="fres3",reuse=reuse,momentum=momentum)
