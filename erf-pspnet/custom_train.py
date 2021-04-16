@@ -13,16 +13,16 @@ import math
 flags = tf.app.flags
 
 #Directory arguments
-flags.DEFINE_string('dataset_dir', '/content/drive/MyDrive/Cityspaces', 'The dataset directory to find the train, validation and test images.')
+flags.DEFINE_string('dataset_dir', '/content/Daynight/Cityscapes', 'The dataset directory to find the train, validation and test images.')
 flags.DEFINE_string('logdir', './log/camvid', 'The log directory to save your checkpoint and event files.')
-flags.DEFINE_string('logdir_drive', './log/camvid', 'The log directory to save your checkpoint and event files.')
+flags.DEFINE_string('logdir_drive', '/content/drive/MyDrive/log/camvid', 'The log directory to save your checkpoint and event files in drive .')
 #Training arguments
 flags.DEFINE_integer('num_classes', 19, 'The number of classes to predict.')
 flags.DEFINE_integer('batch_size', 4, 'The batch_size for training.')
 flags.DEFINE_integer('eval_batch_size', 24, 'The batch size used for validation.')
 flags.DEFINE_integer('image_height',360, "The input height of the images.")
 flags.DEFINE_integer('image_width', 720, "The input width of the images.")
-flags.DEFINE_integer('num_epochs', 5, "The number of epochs to train your model.")
+flags.DEFINE_integer('num_epochs', 30, "The number of epochs to train your model.")
 flags.DEFINE_integer('num_epochs_before_decay', 100, 'The number of epochs before decaying your learning rate.')
 flags.DEFINE_float('weight_decay', 2e-4, "The weight decay for ENet convolution layers.")
 flags.DEFINE_float('learning_rate_decay_factor', 1e-1, 'The learning rate decay factor.')
@@ -57,10 +57,16 @@ logdir_drive = FLAGS.logdir_drive
 #===============PREPARATION FOR TRAINING==================
 #Get the images into a list
 import glob 
-image_files = sorted([os.path.join(dataset_dir, 'images/train', file) for file in glob.glob('/content/drive/MyDrive/Cityspaces/images/train/' + "**/*.png") if file.endswith('.png')])
-annotation_files = sorted([os.path.join(dataset_dir, "gtFine/train", file) for file in glob.glob('/content/drive/MyDrive/Cityspaces/gtFine/train/' + "**/*.png") if file.endswith('labelIds.png')])
-image_val_files = sorted([os.path.join(dataset_dir, 'images/val', file) for file in glob.glob('/content/drive/MyDrive/Cityspaces/images/val/' + "**/*.png") if file.endswith('.png')])
-annotation_val_files = sorted([os.path.join(dataset_dir, "gtFine/val", file) for file in glob.glob('/content/drive/MyDrive/Cityspaces/gtFine/val/' + "**/*.png") if file.endswith('labelIds.png')])
+image_files = sorted([os.path.join(dataset_dir, 'leftImg8bit/train', file) for file in glob.glob('/content/Daynight/Cityscapes/leftImg8bit/train/' + "**/*.png") if file.endswith('.png')])
+annotation_files = sorted([os.path.join(dataset_dir, "gtFine_trainvaltest/gtFine/train", file) for file in glob.glob('/content/Daynight/Cityscapes/gtFine_trainvaltest/gtFine/train/' + "**/*.png") if file.endswith('labelIds.png')])
+image_val_files = sorted([os.path.join(dataset_dir, 'leftImg8bit/val', file) for file in glob.glob('/content/Daynight/Cityscapes/leftImg8bit/val/' + "**/*.png") if file.endswith('.png')])
+annotation_val_files = sorted([os.path.join(dataset_dir, "gtFine_trainvaltest/gtFine/val", file) for file in glob.glob('/content/Daynight/Cityscapes/gtFine_trainvaltest/gtFine/val/' + "**/*.png") if file.endswith('labelIds.png')])
+
+print(len(image_files))
+print(len(annotation_files))
+print(len(image_val_files))
+print(len(annotation_val_files))
+
 #保存到excel
 csvname=logdir[6:]+'.csv'
 with  open(csvname,'a', newline='') as out:
@@ -308,7 +314,7 @@ def run():
                     if i is not step:
                         saver.save(sess, os.path.join(logdir_drive,log_name),global_step=i)					
                         mPrecision,mRecall_rate,mIoU=eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)                       				
-                if i % min(num_steps_per_epoch, 100) == 0:
+                if i % min(num_steps_per_epoch, 10) == 0:
                     loss,summaries = train_sum(sess, train_op,global_step,sums=my_summary_op,loss=total_loss,pre=mPrecision,recall=mRecall_rate,iou=mIoU)
                     summary_writer.add_summary(summaries,global_step=i+1)
                 else:
