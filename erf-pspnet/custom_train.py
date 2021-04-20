@@ -13,9 +13,9 @@ import math
 flags = tf.app.flags
 
 #Directory arguments
-flags.DEFINE_string('dataset_dir', '/content/Daynight/Cityscapes', 'The dataset directory to find the train, validation and test images.')
+flags.DEFINE_string('dataset_dir', 'D:/resource/Daynight/Cityscapes', 'The dataset directory to find the train, validation and test images.')
 flags.DEFINE_string('logdir', './log/camvid', 'The log directory to save your checkpoint and event files.')
-flags.DEFINE_string('logdir_drive', '/content/drive/MyDrive/log/camvid', 'The log directory to save your checkpoint and event files in drive .')
+#flags.DEFINE_string('logdir_drive', '/content/drive/MyDrive/log/camvid', 'The log directory to save your checkpoint and event files in drive .')
 #Training arguments
 flags.DEFINE_integer('num_classes', 19, 'The number of classes to predict.')
 flags.DEFINE_integer('batch_size', 4, 'The batch_size for training.')
@@ -47,20 +47,20 @@ num_epochs =FLAGS.num_epochs
 learning_rate_decay_factor = FLAGS.learning_rate_decay_factor
 weight_decay = FLAGS.weight_decay
 epsilon = 1e-8
-
+    
 
 #Directories
 dataset_dir = FLAGS.dataset_dir
 logdir = FLAGS.logdir
-logdir_drive = FLAGS.logdir_drive
+#logdir_drive = FLAGS.logdir_drive
 
 #===============PREPARATION FOR TRAINING==================
 #Get the images into a list
 import glob 
-image_files = sorted([os.path.join(dataset_dir, 'leftImg8bit/train', file) for file in glob.glob('/content/Daynight/Cityscapes/leftImg8bit/train/' + "**/*.png") if file.endswith('.png')])
-annotation_files = sorted([os.path.join(dataset_dir, "gtFine_trainvaltest/gtFine/train", file) for file in glob.glob('/content/Daynight/Cityscapes/gtFine_trainvaltest/gtFine/train/' + "**/*.png") if file.endswith('labelIds.png')])
-image_val_files = sorted([os.path.join(dataset_dir, 'leftImg8bit/val', file) for file in glob.glob('/content/Daynight/Cityscapes/leftImg8bit/val/' + "**/*.png") if file.endswith('.png')])
-annotation_val_files = sorted([os.path.join(dataset_dir, "gtFine_trainvaltest/gtFine/val", file) for file in glob.glob('/content/Daynight/Cityscapes/gtFine_trainvaltest/gtFine/val/' + "**/*.png") if file.endswith('labelIds.png')])
+image_files = sorted([os.path.join(dataset_dir, 'leftImg8bit/train', file) for file in glob.glob('D:/resource/Daynight/Cityscapes/leftImg8bit/train/' + "**/*.png") if file.endswith('.png')])
+annotation_files = sorted([os.path.join(dataset_dir, "gtFine_trainvaltest/gtFine/train", file) for file in glob.glob('D:/resource/Daynight/Cityscapes/gtFine_trainvaltest/gtFine/train/' + "**/*.png") if file.endswith('labelIds.png')])
+image_val_files = sorted([os.path.join(dataset_dir, 'leftImg8bit/val', file) for file in glob.glob('D:/resource/Daynight/Cityscapes/leftImg8bit/val/' + "**/*.png") if file.endswith('.png')])
+annotation_val_files = sorted([os.path.join(dataset_dir, "gtFine_trainvaltest/gtFine/val", file) for file in glob.glob('D:/resource/Daynight/Cityscapes/gtFine_trainvaltest/gtFine/val/' + "**/*.png") if file.endswith('labelIds.png')])
 
 print(len(image_files))
 print(len(annotation_files))
@@ -68,7 +68,7 @@ print(len(image_val_files))
 print(len(annotation_val_files))
 
 #保存到excel
-csvname=logdir_drive[6:]+'.csv'
+csvname=logdir[6:]+'.csv'
 with  open(csvname,'a', newline='') as out:
     csv_write = csv.writer(out,dialect='excel')
     a=[str(i) for i in range(num_classes)]
@@ -292,7 +292,7 @@ def run():
                 saver.restore(sess, checkpoint)
                 step = 37127
                 sess.run(tf.assign(global_step,step))
-            summary_writer = tf.summary.FileWriter(logdir_drive, sess.graph)
+            summary_writer = tf.summary.FileWriter(logdir, sess.graph)
             final = num_steps_per_epoch * num_epochs
             for i in range(step,final,1):
                 if i % num_batches_per_epoch == 0:
@@ -300,7 +300,7 @@ def run():
                     learning_rate_value = sess.run([lr])
                     logging.info('Current Learning Rate: %s', learning_rate_value)
                     if i is not step:
-                        saver.save(sess, os.path.join(logdir_drive,log_name),global_step=i)					
+                        saver.save(sess, os.path.join(logdir,log_name),global_step=i)					
                         mPrecision,mRecall_rate,mIoU=eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)                       				
                 if i % min(num_steps_per_epoch, 10) == 0:
                     loss,summaries = train_sum(sess, train_op,global_step,sums=my_summary_op,loss=total_loss,pre=mPrecision,recall=mRecall_rate,iou=mIoU)
@@ -311,7 +311,7 @@ def run():
             eval(num_class=num_classes,csvname=csvname,session=sess,image_val=image_val_files,eval_batch=eval_batch_size)
             logging.info('Final Loss: %s', loss)
             logging.info('Finished training! Saving model to disk now.')
-            saver.save(sess,  os.path.join(logdir_drive,log_name), global_step = final)
+            saver.save(sess,  os.path.join(logdir,log_name), global_step = final)
 
 
 if __name__ == '__main__':
